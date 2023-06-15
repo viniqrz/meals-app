@@ -1,39 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals/models/meal.dart';
+import 'package:meals/providers/favorites_provider.dart';
+import 'package:meals/providers/meals_provider.dart';
 import 'package:meals/screens/categories.dart';
 import 'package:meals/screens/meals.dart';
 import 'package:meals/widgets/main_drawer.dart';
 
-class TabsScreen extends StatefulWidget {
+class TabsScreen extends ConsumerStatefulWidget {
   const TabsScreen({super.key});
 
   @override
-  State<TabsScreen> createState() => _TabsScreenState();
+  ConsumerState<TabsScreen> createState() => _TabsScreenState();
 }
 
-class _TabsScreenState extends State<TabsScreen> {
+class _TabsScreenState extends ConsumerState<TabsScreen> {
   int _tabIndex = 0;
-  final List<Meal> _favoriteMeals = [];
-
-  void _showInfoMessage(String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 4),
-    ));
-  }
-
-  void _toggleMealFavoriteStatus(Meal meal) {
-    final isExisting = _favoriteMeals.contains(meal);
-
-    if (isExisting == true) {
-      _favoriteMeals.remove(meal);
-      _showInfoMessage('Removed from favorites');
-    } else {
-      _favoriteMeals.add(meal);
-      _showInfoMessage('Added to favorites');
-    }
-  }
 
   void _selectTab(int index) {
     setState(() {
@@ -44,10 +26,11 @@ class _TabsScreenState extends State<TabsScreen> {
   @override
   Widget build(BuildContext context) {
     List<Widget> tabs = [
-      CategoriesScreen(onToggleFavorite: _toggleMealFavoriteStatus),
+      CategoriesScreen(
+        availableMeals: ref.watch(mealsProvider),
+      ),
       MealsScreen(
-        meals: _favoriteMeals,
-        onToggleFavorite: _toggleMealFavoriteStatus,
+        meals: ref.watch(favoriteMealsProvider),
       ),
     ];
 
